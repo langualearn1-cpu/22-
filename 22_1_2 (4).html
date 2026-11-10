@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2: Chores - A Visit to Their Grandparents!</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', 'Cairo', sans-serif;
+            background-color: #f6fbf6;
+            background-image: 
+                radial-gradient(#bbf7d0 1.2px, transparent 1.2px), 
+                radial-gradient(#fde68a 1.2px, #f6fbf6 1.2px);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+            overflow-x: hidden;
+        }
+
+        .en-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border: 3.5px solid #0f766e;
+            border-radius: 18px;
+            box-shadow: 0 4px 0 #0f766e;
+            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .speech-bubble.active-speech {
+            background-color: #fef08a !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 4px 0 #d97706 !important;
+        }
+
+        .word-token {
+            display: inline;
+        }
+
+        .vocab-word {
+            color: #0d6b75;
+            font-weight: 800;
+        }
+
+        .number-box {
+            width: 36px;
+            height: 36px;
+            border: 2.5px solid #475569;
+            border-radius: 8px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.15rem;
+            color: #047857;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #475569;
+            transition: all 0.2s ease;
+        }
+
+        .number-box:hover {
+            transform: scale(1.1);
+            background-color: #f0fdf4;
+            border-color: #059669;
+            box-shadow: 0 3px 0 #059669;
+        }
+
+        .number-box.stamped {
+            background-color: #10b981;
+            color: #ffffff;
+            border-color: #047857;
+            box-shadow: 0 2px 0 #047857;
+        }
+
+        .comic-panel {
+            border: 3.5px solid #292524;
+            border-radius: 24px;
+            box-shadow: 0 6px 0 #292524;
+            overflow: hidden;
+            background: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .comic-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 9px 0 #292524;
+        }
+
+        .comic-tag {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            background: #ffffff;
+            border: 2px solid #292524;
+            border-radius: 9999px;
+            padding: 2px 14px;
+            box-shadow: 0 2px 0 #292524;
+        }
+
+        .chore-badge {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2.5px solid #cbd5e1;
+            cursor: pointer;
+        }
+
+        .chore-badge:hover {
+            transform: translateY(-6px) scale(1.05);
+            border-color: #ec4899;
+            box-shadow: 0 10px 18px -4px rgba(236, 72, 153, 0.25);
+        }
+
+        .chore-badge.speaking {
+            background-color: #fdf2f8 !important;
+            border-color: #db2777 !important;
+            box-shadow: 0 0 0 3px #fbcfe8 !important;
+        }
+
+        .unit-title-shadow {
+            text-shadow: 
+                3px 3px 0 #1e293b,
+                -2px -2px 0 #1e293b,
+                2px -2px 0 #1e293b,
+                -2px 2px 0 #1e293b,
+                0 4px 0 #1e293b;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800">
+
+    <!-- Navigation & Control Bar -->
+    <nav class="bg-white/90 backdrop-blur-md border-b-2 border-emerald-200 sticky top-0 z-40 px-4 py-2.5 shadow-sm">
+        <div class="max-w-5xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="font-black text-emerald-800 text-sm sm:text-base">Unit 2: Chores</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <!-- قائمة أصوات متحدثي اللغة الإنجليزية -->
+                <div class="relative">
+                    <button onclick="toggleVoiceDropdown()" id="voiceSelectorBtn" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-900 rounded-xl text-xs sm:text-sm font-black shadow-sm flex items-center gap-2 transition active:scale-95">
+                        <i class="fa-solid fa-user-tie text-indigo-600"></i>
+                        <span id="navSpeakerName">Samantha (US)</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-indigo-500"></i>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div id="voiceDropdownMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border-2 border-indigo-100 p-2 z-50 text-left">
+                        <div class="text-[11px] font-bold text-slate-400 px-3 py-1 uppercase tracking-wider">English Speakers</div>
+                        <div id="voiceOptionsList" class="flex flex-col gap-1 max-h-56 overflow-y-auto">
+                            <!-- سيتم توليد أسماء المتحدثين برمجياً -->
+                        </div>
+                    </div>
+                </div>
+
+                <button id="playAllBtn" onclick="togglePlayFullLesson()" class="px-4 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-xs sm:text-sm font-black shadow flex items-center gap-2 transition active:scale-95">
+                    <i id="playAllIcon" class="fa-solid fa-play"></i>
+                    <span id="playAllText">Auto Read (Repeat 2x)</span>
+                </button>
+                <button onclick="toggleSpeechRate()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-gauge-high text-teal-600"></i>
+                    <span id="speedDisplay">Calm (0.75x)</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Learning Content -->
+    <main class="max-w-5xl w-full mx-auto px-3 sm:px-4 py-5 flex-grow">
+
+        <header class="relative mb-6 text-center select-none">
+            <div class="flex items-center justify-center gap-3 flex-wrap mb-1">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-teal-400 to-emerald-600 text-white flex items-center justify-center font-black text-3xl sm:text-4xl shadow-lg border-4 border-white ring-4 ring-emerald-300">
+                    2
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-black en-font tracking-wide text-rose-500 unit-title-shadow">
+                    <span class="text-indigo-400">UNIT </span>
+                    <span class="text-amber-400">2: </span>
+                    <span class="text-rose-400">CHORES</span>
+                </h2>
+            </div>
+
+            <div class="inline-block bg-teal-700 text-white px-6 py-1.5 rounded-md font-bold text-sm sm:text-base shadow-md -rotate-1 border-2 border-teal-800 my-1">
+                A Visit to Their Grandparents!
+            </div>
+
+            <div class="flex items-center justify-center gap-3 sm:gap-6 mt-3 flex-wrap">
+                <div class="bg-amber-100 border border-amber-300 text-amber-900 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
+                    <span class="bg-amber-400 text-amber-950 w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>
+                    <i class="fa-solid fa-headphones text-amber-700"></i>
+                    <span>Listen and number.</span>
+                </div>
+                <div class="bg-amber-100 border border-amber-300 text-amber-900 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
+                    <span class="bg-amber-400 text-amber-950 w-5 h-5 rounded-full flex items-center justify-center text-xs">2</span>
+                    <i class="fa-solid fa-headphones text-amber-700"></i>
+                    <span>Listen, point, and say.</span>
+                </div>
+                
+                <!-- أيقونة خاصة بأسماء متحدثي اللغة الإنجليزية قابلة للنقر -->
+                <button onclick="toggleVoiceDropdown()" class="bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-900 border-2 border-indigo-200 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-black shadow-sm flex items-center gap-2 hover:border-indigo-400 hover:shadow-md transition cursor-pointer">
+                    <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center text-xs shadow-inner">
+                        <i class="fa-solid fa-user-group text-[10px]"></i>
+                    </span>
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-waveform-lines text-indigo-600"></i>
+                        <span id="speakerBadgeName">Speaker: Samantha</span>
+                        <span class="text-[10px] bg-indigo-200/90 text-indigo-900 px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">Native EN</span>
+                    </div>
+                </button>
+            </div>
+
+            <div class="mt-5 max-w-md mx-auto bg-white p-2.5 rounded-2xl border-2 border-emerald-200 shadow-md flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <img id="headerThumbImg" src="" alt="Lesson Thumbnail" class="w-14 h-16 object-cover rounded-xl border border-emerald-300 shadow-inner flex-shrink-0" />
+                    <div class="text-left">
+                        <span class="text-xs font-bold text-emerald-800 block">Student Book Poster • Unit 2</span>
+                        <span class="text-[11px] text-slate-500">A Visit to Their Grandparents!</span>
+                    </div>
+                </div>
+                <div class="bg-emerald-50 text-emerald-800 border border-emerald-300 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-repeat text-emerald-600"></i>
+                    <span>Repeats 2x</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Comic Scenes 2x2 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+
+            <!-- Panel 1: On the bus -->
+            <div id="panel-bus" class="comic-panel relative bg-[#ecfdf5] p-3 sm:p-4 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3 z-10">
+                    <span class="comic-tag text-xs text-slate-800">On the bus ...</span>
+                    <div onclick="stampNumber('num-bus')" id="num-bus" class="number-box" title="Click to number (1-4)">1</div>
+                </div>
+
+                <div class="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden mb-3 bg-gradient-to-b from-sky-200 via-emerald-100 to-amber-100 border-2 border-emerald-200 flex items-center justify-center">
+                    <span class="absolute top-2 left-6 text-amber-500 text-sm animate-bounce">🍂</span>
+                    <span class="absolute bottom-4 right-10 text-orange-400 text-xs">🍁</span>
+                    <span class="absolute top-10 right-4 text-amber-600 text-xs">🍂</span>
+                    
+                    <svg viewBox="0 0 280 150" class="w-full h-full max-h-44 object-contain drop-shadow-md">
+                        <path d="M0 135 Q140 120 280 135 L280 150 L0 150 Z" fill="#d97706" opacity="0.25"/>
+                        <path d="M0 142 Q140 132 280 142" stroke="#92400e" stroke-width="2" stroke-dasharray="8 6"/>
+                        <rect x="25" y="32" width="230" height="85" rx="16" fill="#f97316" stroke="#c2410c" stroke-width="3"/>
+                        <rect x="35" y="42" width="210" height="42" rx="8" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+                        <line x1="85" y1="42" x2="85" y2="84" stroke="#0284c7" stroke-width="3"/>
+                        <line x1="140" y1="42" x2="140" y2="84" stroke="#0284c7" stroke-width="3"/>
+                        <line x1="195" y1="42" x2="195" y2="84" stroke="#0284c7" stroke-width="3"/>
+                        <circle cx="112" cy="62" r="14" fill="#fed7aa"/>
+                        <path d="M98 56 Q112 40 126 56" fill="#f43f5e"/>
+                        <circle cx="107" cy="63" r="1.8" fill="#1e293b"/>
+                        <circle cx="117" cy="63" r="1.8" fill="#1e293b"/>
+                        <path d="M109 68 Q112 71 115 68" stroke="#9a3412" stroke-width="1.5" fill="none"/>
+                        <circle cx="168" cy="62" r="14" fill="#fed7aa"/>
+                        <path d="M154 54 L182 54 L178 46 L158 46 Z" fill="#7c3aed"/>
+                        <circle cx="163" cy="63" r="1.8" fill="#1e293b"/>
+                        <circle cx="173" cy="63" r="1.8" fill="#1e293b"/>
+                        <path d="M165 68 Q168 71 171 68" stroke="#9a3412" stroke-width="1.5" fill="none"/>
+                        <rect x="18" y="70" width="8" height="24" rx="3" fill="#fde047" stroke="#ca8a04" stroke-width="1.5"/>
+                        <line x1="30" y1="92" x2="250" y2="92" stroke="#ea580c" stroke-width="4"/>
+                        <circle cx="75" cy="117" r="18" fill="#1e293b" stroke="#475569" stroke-width="3"/>
+                        <circle cx="75" cy="117" r="7" fill="#cbd5e1"/>
+                        <circle cx="205" cy="117" r="18" fill="#1e293b" stroke="#475569" stroke-width="3"/>
+                        <circle cx="205" cy="117" r="7" fill="#cbd5e1"/>
+                    </svg>
+                </div>
+
+                <div class="flex flex-col gap-2.5">
+                    <div id="bubble-1" onclick="readBubble('bubble-1')" class="speech-bubble p-2.5 sm:p-3" data-text="This superhero comic book is fun!">
+                        <div class="flex items-start gap-2">
+                            <span class="text-emerald-600 mt-0.5 text-xs"><i class="fa-solid fa-comment-dots"></i></span>
+                            <div class="flex-grow">
+                                <p class="text-sm sm:text-base leading-snug font-bold text-slate-800">
+                                    <span class="word-token">This</span>
+                                    <span class="word-token">superhero</span>
+                                    <span class="word-token vocab-word font-extrabold text-teal-700">comic</span>
+                                    <span class="word-token vocab-word font-extrabold text-teal-700">book</span>
+                                    <span class="word-token">is</span>
+                                    <span class="word-token">fun!</span>
+                                </p>
+                                <p dir="rtl" class="text-xs sm:text-sm font-semibold text-teal-800 mt-1 font-['Cairo']">
+                                    هذه القصة المصورة للبطل الخارق ممتعة ومسلية!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="bubble-2" onclick="readBubble('bubble-2')" class="speech-bubble p-2.5 sm:p-3" data-text="Grandpa and grandma are my superheroes!">
+                        <div class="flex items-start gap-2">
+                            <span class="text-teal-600 mt-0.5 text-xs"><i class="fa-solid fa-comment-dots"></i></span>
+                            <div class="flex-grow">
+                                <p class="text-sm sm:text-base leading-snug font-bold text-slate-800">
+                                    <span class="word-token">Grandpa</span>
+                                    <span class="word-token">and</span>
+                                    <span class="word-token">grandma</span>
+                                    <span class="word-token">are</span>
+                                    <span class="word-token">my</span>
+                                    <span class="word-token">superheroes!</span>
+                                </p>
+                                <p dir="rtl" class="text-xs sm:text-sm font-semibold text-teal-800 mt-1 font-['Cairo']">
+                                    جدي وجدتي هما أبطالي الخارقون!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2: The next morning -->
+            <div id="panel-morning" class="comic-panel relative bg-[#fff7ed] p-3 sm:p-4 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3 z-10">
+                    <span class="comic-tag text-xs text-slate-800">The next morning ...</span>
+                    <div onclick="stampNumber('num-morning')" id="num-morning" class="number-box" title="Click to number (1-4)">2</div>
+                </div>
+
+                <div class="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden mb-3 bg-gradient-to-b from-amber-100 via-orange-50 to-rose-100 border-2 border-orange-200 flex items-center justify-center">
+                    <span class="absolute top-2 right-6 text-amber-500 text-lg">🍂</span>
+                    <span class="absolute bottom-6 left-8 text-orange-400 text-sm">🍁</span>
+
+                    <svg viewBox="0 0 280 150" class="w-full h-full max-h-44 object-contain drop-shadow-md">
+                        <rect x="30" y="15" width="80" height="85" fill="#bae6fd" stroke="#94a3b8" stroke-width="3"/>
+                        <line x1="70" y1="15" x2="70" y2="100" stroke="#94a3b8" stroke-width="2"/>
+                        <line x1="30" y1="55" x2="110" y2="55" stroke="#94a3b8" stroke-width="2"/>
+                        <path d="M85 30 Q95 25 100 35 Q90 40 85 30 Z" fill="#d97706"/>
+                        <path d="M45 65 Q55 60 60 70 Q50 75 45 65 Z" fill="#ea580c"/>
+                        <rect x="20" y="85" width="110" height="50" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+                        <ellipse cx="40" cy="100" rx="15" ry="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <circle cx="45" cy="95" r="9" fill="#fed7aa"/>
+                        <path d="M38 90 Q45 84 52 90 Z" fill="#78350f"/>
+                        <path d="M48 98 Q75 90 125 98 L125 130 L45 130 Z" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2"/>
+                        <circle cx="190" cy="45" r="13" fill="#fdba74"/>
+                        <path d="M176 38 Q190 24 204 38 Q198 30 176 38 Z" fill="#b45309"/>
+                        <rect x="175" y="58" width="30" height="70" rx="6" fill="#0284c7"/>
+                        <circle cx="230" cy="50" r="11" fill="#fed7aa"/>
+                        <path d="M220 42 Q230 32 240 42 Z" fill="#e11d48"/>
+                        <rect x="222" y="61" width="18" height="60" rx="4" fill="#10b981"/>
+                    </svg>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <div id="bubble-3" onclick="readBubble('bubble-3')" class="speech-bubble p-2 sm:p-2.5" data-text="Hurry up! You need to catch the bus at nine!">
+                        <p class="text-xs sm:text-sm font-bold text-slate-800">
+                            <span class="word-token">Hurry</span>
+                            <span class="word-token">up!</span>
+                            <span class="word-token">You</span>
+                            <span class="word-token">need</span>
+                            <span class="word-token">to</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">catch</span>
+                            <span class="word-token">the</span>
+                            <span class="word-token">bus</span>
+                            <span class="word-token">at</span>
+                            <span class="word-token">nine!</span>
+                        </p>
+                        <p dir="rtl" class="text-xs font-semibold text-amber-900 mt-1 font-['Cairo']">
+                            أسرعوا! يجب أن تلحقوا بالحافلة عند الساعة التاسعة!
+                        </p>
+                    </div>
+
+                    <div id="bubble-4" onclick="readBubble('bubble-4')" class="speech-bubble p-2 sm:p-2.5" data-text="I'm waking up, Mom!">
+                        <p class="text-xs sm:text-sm font-bold text-slate-800">
+                            <span class="word-token">I'm</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">waking</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">up,</span>
+                            <span class="word-token">Mom!</span>
+                        </p>
+                        <p dir="rtl" class="text-xs font-semibold text-amber-900 mt-1 font-['Cairo']">
+                            أنا أستيقظ الآن يا أمي!
+                        </p>
+                    </div>
+
+                    <div id="bubble-5" onclick="readBubble('bubble-5')" class="speech-bubble p-2 sm:p-2.5" data-text="What? Get up now!">
+                        <p class="text-xs sm:text-sm font-bold text-slate-800">
+                            <span class="word-token">What?</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">Get</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">up</span>
+                            <span class="word-token">now!</span>
+                        </p>
+                        <p dir="rtl" class="text-xs font-semibold text-amber-900 mt-1 font-['Cairo']">
+                            ماذا؟ انهض من فراشك حالاً!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3: Bus 54 & Dining Table -->
+            <div id="panel-table" class="comic-panel relative bg-[#f0fdfa] p-3 sm:p-4 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3 z-10">
+                    <span class="comic-tag text-xs text-slate-800">Planning the visit ...</span>
+                    <div onclick="stampNumber('num-table')" id="num-table" class="number-box" title="Click to number (1-4)">3</div>
+                </div>
+
+                <div class="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden mb-3 bg-gradient-to-b from-teal-50 via-sky-50 to-amber-50 border-2 border-teal-200 flex items-center justify-center">
+                    <svg viewBox="0 0 280 150" class="w-full h-full max-h-44 object-contain drop-shadow-md">
+                        <rect x="50" y="10" width="180" height="75" fill="#a7f3d0" stroke="#059669" stroke-width="2"/>
+                        <path d="M30 10 L60 10 L60 85 L30 85 Z" fill="#c084fc"/>
+                        <path d="M220 10 L250 10 L250 85 L220 85 Z" fill="#c084fc"/>
+                        <g transform="translate(100, 18) scale(0.65)">
+                            <rect x="0" y="0" width="85" height="55" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+                            <rect x="8" y="8" width="69" height="30" rx="4" fill="#ef4444"/>
+                            <text x="24" y="28" font-size="16" font-weight="900" fill="#ffffff">54</text>
+                            <circle cx="22" cy="44" r="6" fill="#1e293b"/>
+                            <circle cx="62" cy="44" r="6" fill="#1e293b"/>
+                        </g>
+                        <rect x="25" y="90" width="230" height="55" rx="10" fill="#38bdf8" stroke="#0284c7" stroke-width="2"/>
+                        <ellipse cx="90" cy="105" rx="18" ry="7" fill="#fde047" stroke="#ca8a04" stroke-width="1.5"/>
+                        <ellipse cx="140" cy="104" rx="14" ry="6" fill="#fde047" stroke="#ca8a04" stroke-width="1.5"/>
+                        <ellipse cx="190" cy="105" rx="18" ry="7" fill="#fde047" stroke="#ca8a04" stroke-width="1.5"/>
+                        <circle cx="55" cy="65" r="13" fill="#fed7aa"/>
+                        <path d="M42 55 Q55 42 68 55 Z" fill="#ea580c"/>
+                        <rect x="44" y="78" width="22" height="35" rx="4" fill="#10b981"/>
+                        <circle cx="140" cy="68" r="12" fill="#fcd34d"/>
+                        <rect x="131" y="80" width="18" height="35" rx="4" fill="#eab308"/>
+                        <circle cx="220" cy="62" r="14" fill="#fed7aa"/>
+                        <path d="M206 52 Q220 38 234 52 Z" fill="#b45309"/>
+                        <rect x="208" y="76" width="24" height="35" rx="4" fill="#ec4899"/>
+                    </svg>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <div id="bubble-6" onclick="readBubble('bubble-6')" class="speech-bubble p-2 sm:p-2.5" data-text="Get on the 54 bus to go to your grandparents' tomorrow.">
+                        <p class="text-xs sm:text-sm font-bold text-slate-800">
+                            <span class="word-token vocab-word font-extrabold text-teal-700">Get</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">on</span>
+                            <span class="word-token">the</span>
+                            <span class="word-token">54</span>
+                            <span class="word-token">bus</span>
+                            <span class="word-token">to</span>
+                            <span class="word-token">go</span>
+                            <span class="word-token">to</span>
+                            <span class="word-token">your</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">grandparents'</span>
+                            <span class="word-token">tomorrow.</span>
+                        </p>
+                        <p dir="rtl" class="text-xs font-semibold text-teal-900 mt-1 font-['Cairo']">
+                            اركبوا الحافلة رقم 54 للذهاب إلى منزل جدكم وجدتكم غداً.
+                        </p>
+                    </div>
+
+                    <div id="bubble-7" onclick="readBubble('bubble-7')" class="speech-bubble p-2 sm:p-2.5" data-text="Where do we get off?">
+                        <p class="text-xs sm:text-sm font-bold text-slate-800">
+                            <span class="word-token">Where</span>
+                            <span class="word-token">do</span>
+                            <span class="word-token">we</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">get</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">off?</span>
+                        </p>
+                        <p dir="rtl" class="text-xs font-semibold text-teal-900 mt-1 font-['Cairo']">
+                            أين ننزل من الحافلة؟
+                        </p>
+                    </div>
+
+                    <div id="bubble-8" onclick="readBubble('bubble-8')" class="speech-bubble p-2 sm:p-2.5" data-text="At the park. It's a short ride.">
+                        <p class="text-xs sm:text-sm font-bold text-slate-800">
+                            <span class="word-token">At</span>
+                            <span class="word-token">the</span>
+                            <span class="word-token">park.</span>
+                            <span class="word-token">It's</span>
+                            <span class="word-token">a</span>
+                            <span class="word-token">short</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">ride.</span>
+                        </p>
+                        <p dir="rtl" class="text-xs font-semibold text-teal-900 mt-1 font-['Cairo']">
+                            عند الحديقة. إنها رحلة قصيرة.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 4: In the garden & Chores clothes -->
+            <div id="panel-garden" class="comic-panel relative bg-[#fefce8] p-3 sm:p-4 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3 z-10">
+                    <span class="comic-tag text-xs text-slate-800">In the garden ...</span>
+                    <div onclick="stampNumber('num-garden')" id="num-garden" class="number-box" title="Click to number (1-4)">4</div>
+                </div>
+
+                <div class="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden mb-3 bg-gradient-to-b from-amber-100 via-emerald-50 to-orange-100 border-2 border-amber-300 flex items-center justify-center">
+                    <svg viewBox="0 0 280 150" class="w-full h-full max-h-44 object-contain drop-shadow-md">
+                        <rect x="0" y="110" width="280" height="40" fill="#a3e635"/>
+                        <circle cx="25" cy="40" r="30" fill="#f59e0b" opacity="0.7"/>
+                        <circle cx="260" cy="50" r="28" fill="#ea580c" opacity="0.6"/>
+                        <path d="M40 125 Q60 115 80 128 Q100 118 120 126 Z" fill="#d97706"/>
+                        <circle cx="55" cy="120" r="3" fill="#ea580c"/>
+                        <circle cx="85" cy="122" r="3.5" fill="#b45309"/>
+                        <rect x="215" y="92" width="30" height="40" rx="3" fill="#64748b" stroke="#334155" stroke-width="2"/>
+                        <ellipse cx="230" cy="92" rx="15" ry="4" fill="#94a3b8"/>
+                        <line x1="222" y1="102" x2="222" y2="124" stroke="#334155" stroke-width="2"/>
+                        <line x1="238" y1="102" x2="238" y2="124" stroke="#334155" stroke-width="2"/>
+                        <circle cx="65" cy="95" r="10" fill="#fed7aa"/>
+                        <path d="M56 88 Q65 80 74 88 Z" fill="#dc2626"/>
+                        <rect x="58" y="105" width="14" height="20" rx="3" fill="#f59e0b"/>
+                        <circle cx="140" cy="65" r="12" fill="#fdba74"/>
+                        <rect x="132" y="77" width="16" height="40" rx="4" fill="#1d4ed8"/>
+                        <circle cx="200" cy="58" r="11" fill="#fcd34d"/>
+                        <rect x="193" y="69" width="14" height="28" rx="3" fill="#ef4444"/>
+                        <path d="M192 72 L182 60 M207 72 L217 60" stroke="#fcd34d" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <div id="bubble-9" onclick="readBubble('bubble-9')" class="speech-bubble p-2 sm:p-2.5" data-text="Get undressed. Put your gardening clothes on.">
+                        <p class="text-xs sm:text-sm font-bold text-slate-800">
+                            <span class="word-token vocab-word font-extrabold text-teal-700">Get</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">undressed.</span>
+                            <span class="word-token">Put</span>
+                            <span class="word-token">your</span>
+                            <span class="word-token">gardening</span>
+                            <span class="word-token">clothes</span>
+                            <span class="word-token">on.</span>
+                        </p>
+                        <p dir="rtl" class="text-xs font-semibold text-amber-950 mt-1 font-['Cairo']">
+                            اخلعوا ملابسكم، وارتدوا ملابس العمل في الحديقة.
+                        </p>
+                    </div>
+
+                    <div id="bubble-10" onclick="readBubble('bubble-10')" class="speech-bubble p-2 sm:p-2.5" data-text="Sorry, I'm getting dressed now!">
+                        <p class="text-xs sm:text-sm font-bold text-slate-800">
+                            <span class="word-token">Sorry,</span>
+                            <span class="word-token">I'm</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">getting</span>
+                            <span class="word-token vocab-word font-extrabold text-teal-700">dressed</span>
+                            <span class="word-token">now!</span>
+                        </p>
+                        <p dir="rtl" class="text-xs font-semibold text-amber-950 mt-1 font-['Cairo']">
+                            عذراً يا أمي، أنا أرتدي ملابسي الآن!
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div id="bubble-11" onclick="readBubble('bubble-11')" class="speech-bubble p-2" data-text="Can we collect leaves?">
+                            <p class="text-xs font-bold text-slate-800">
+                                <span class="word-token">Can</span>
+                                <span class="word-token">we</span>
+                                <span class="word-token">collect</span>
+                                <span class="word-token">leaves?</span>
+                            </p>
+                            <p dir="rtl" class="text-[11px] font-semibold text-amber-950 mt-1 font-['Cairo']">
+                                هل يمكننا جمع أوراق الشجر؟
+                            </p>
+                        </div>
+                        <div id="bubble-12" onclick="readBubble('bubble-12')" class="speech-bubble p-2" data-text="We can put them in the trash can.">
+                            <p class="text-xs font-bold text-slate-800">
+                                <span class="word-token">We</span>
+                                <span class="word-token">can</span>
+                                <span class="word-token">put</span>
+                                <span class="word-token">them</span>
+                                <span class="word-token">in</span>
+                                <span class="word-token">the</span>
+                                <span class="word-token vocab-word font-extrabold text-teal-700">trash</span>
+                                <span class="word-token vocab-word font-extrabold text-teal-700">can.</span>
+                            </p>
+                            <p dir="rtl" class="text-[11px] font-semibold text-amber-950 mt-1 font-['Cairo']">
+                                يمكننا وضعها في سلة المهملات.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section: How do you help at home? -->
+        <section class="mt-8 bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 p-4 sm:p-5 rounded-3xl shadow-xl border-4 border-white text-white">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                
+                <div class="flex items-center gap-4 text-center md:text-left">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 animate-bounce">
+                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-lg">
+                            <ellipse cx="50" cy="50" rx="26" ry="36" fill="#8b5cf6" stroke="#5b21b6" stroke-width="2.5"/>
+                            <circle cx="42" cy="40" r="5" fill="#ffffff"/>
+                            <circle cx="43" cy="40" r="2.5" fill="#1e293b"/>
+                            <circle cx="58" cy="40" r="5" fill="#ffffff"/>
+                            <circle cx="59" cy="40" r="2.5" fill="#1e293b"/>
+                            <path d="M43 54 Q50 62 57 54" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none"/>
+                            <path d="M24 45 Q12 35 15 25" stroke="#8b5cf6" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                            <path d="M76 45 Q88 35 85 25" stroke="#8b5cf6" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                            <path d="M40 84 L36 94 M60 84 L64 94" stroke="#5b21b6" stroke-width="4" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl sm:text-3xl font-black en-font leading-tight text-white drop-shadow">
+                            How do you help at home?
+                        </h3>
+                        <p class="text-xs sm:text-sm text-pink-100 font-bold">
+                            Listen, point, and say these daily chores! • انقر للاستماع لنطق كل عمل منزلي
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full md:w-auto">
+                    <div id="chore-sweep" onclick="speakChore('sweep', 'chore-sweep')" class="chore-badge bg-white text-slate-800 rounded-2xl p-2.5 text-center flex flex-col items-center justify-center shadow-md">
+                        <div class="w-14 h-14 rounded-full bg-emerald-100 border-2 border-emerald-400 flex items-center justify-center text-2xl text-emerald-600 mb-1.5">
+                            🧹
+                        </div>
+                        <span class="en-font font-black text-sm text-slate-800">sweep</span>
+                        <span class="text-[10px] text-slate-500 font-bold">يكنس الأرض</span>
+                    </div>
+
+                    <div id="chore-bed" onclick="speakChore('make the bed', 'chore-bed')" class="chore-badge bg-white text-slate-800 rounded-2xl p-2.5 text-center flex flex-col items-center justify-center shadow-md">
+                        <div class="w-14 h-14 rounded-full bg-amber-100 border-2 border-amber-400 flex items-center justify-center text-2xl text-amber-600 mb-1.5">
+                            🛏️
+                        </div>
+                        <span class="en-font font-black text-sm text-slate-800">make the bed</span>
+                        <span class="text-[10px] text-slate-500 font-bold">يرتّب السرير</span>
+                    </div>
+
+                    <div id="chore-dishes" onclick="speakChore('wash dishes', 'chore-dishes')" class="chore-badge bg-white text-slate-800 rounded-2xl p-2.5 text-center flex flex-col items-center justify-center shadow-md">
+                        <div class="w-14 h-14 rounded-full bg-sky-100 border-2 border-sky-400 flex items-center justify-center text-2xl text-sky-600 mb-1.5">
+                            🍽️
+                        </div>
+                        <span class="en-font font-black text-sm text-slate-800">wash dishes</span>
+                        <span class="text-[10px] text-slate-500 font-bold">يغسل الصحون</span>
+                    </div>
+
+                    <div id="chore-toys" onclick="speakChore('pick up toys', 'chore-toys')" class="chore-badge bg-white text-slate-800 rounded-2xl p-2.5 text-center flex flex-col items-center justify-center shadow-md">
+                        <div class="w-14 h-14 rounded-full bg-rose-100 border-2 border-rose-400 flex items-center justify-center text-2xl text-rose-600 mb-1.5">
+                            🧸
+                        </div>
+                        <span class="en-font font-black text-sm text-slate-800">pick up toys</span>
+                        <span class="text-[10px] text-slate-500 font-bold">يجمع الألعاب</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Page 22 Badge -->
+        <div class="mt-8 mb-4 flex items-center justify-center">
+            <div class="relative group cursor-pointer select-none">
+                <div class="absolute -inset-1.5 bg-gradient-to-r from-teal-400 via-amber-400 to-pink-500 rounded-3xl blur-md opacity-70 group-hover:opacity-100 transition duration-300"></div>
+
+                <div class="relative bg-gradient-to-b from-white to-amber-50/90 border-3 border-teal-600 rounded-2xl px-6 py-2.5 sm:px-8 sm:py-3 shadow-lg flex items-center gap-3 sm:gap-4">
+                    <div class="flex items-center gap-1 text-base sm:text-lg">
+                        <span class="text-amber-400 animate-spin" style="animation-duration: 6s;">✦</span>
+                        <span class="text-teal-600">🍂</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-600 to-teal-700 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-md border-2 border-white ring-2 ring-emerald-300 transform -rotate-3 hover:rotate-0 transition-transform">
+                            22
+                        </div>
+                        <div class="text-left leading-tight">
+                            <span class="en-font font-black text-lg sm:text-xl text-teal-800 tracking-wide block">
+                                PAGE <span class="text-rose-500">22</span>
+                            </span>
+                            <span dir="rtl" class="text-xs sm:text-sm font-bold text-amber-700 font-['Cairo'] block">
+                                📖 صفحة ٢٢ • كتاب الطالب
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1 text-base sm:text-lg">
+                        <span class="text-rose-500">🍁</span>
+                        <span class="text-amber-400 animate-spin" style="animation-duration: 6s; animation-direction: reverse;">✦</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Reading Toast -->
+    <div id="liveReadingToast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md text-white px-5 py-2.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 transition-all duration-300 opacity-0 pointer-events-none translate-y-8 max-w-[94vw]">
+        <div class="w-3 h-3 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></div>
+        <div class="truncate">
+            <span class="text-[11px] text-slate-400 block font-sans" id="toastSpeakerLabel">Reading with Native Speaker Voice:</span>
+            <span id="toastWord" class="en-font font-black text-amber-300 text-base sm:text-lg tracking-wide">...</span>
+        </div>
+    </div>
+
+    <footer class="bg-white/90 border-t border-emerald-200 mt-10 py-5 px-4 text-center text-xs text-slate-600">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p class="font-bold">
+                Unit 2: Chores • A Visit to Their Grandparents!
+            </p>
+            <div class="flex items-center gap-2">
+                <span class="bg-indigo-50 text-indigo-800 px-3 py-1 rounded-full font-bold border border-indigo-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-headset text-indigo-600"></i>
+                    <span id="footerSpeakerName">Native English Voice</span>
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const allDialogues = [
+            { id: 'bubble-1', text: 'This superhero comic book is fun!', panelId: 'panel-bus' },
+            { id: 'bubble-2', text: 'Grandpa and grandma are my superheroes!', panelId: 'panel-bus' },
+            { id: 'bubble-3', text: 'Hurry up! You need to catch the bus at nine!', panelId: 'panel-morning' },
+            { id: 'bubble-4', text: "I'm waking up, Mom!", panelId: 'panel-morning' },
+            { id: 'bubble-5', text: 'What? Get up now!', panelId: 'panel-morning' },
+            { id: 'bubble-6', text: "Get on the 54 bus to go to your grandparents' tomorrow.", panelId: 'panel-table' },
+            { id: 'bubble-7', text: 'Where do we get off?', panelId: 'panel-table' },
+            { id: 'bubble-8', text: "At the park. It's a short ride.", panelId: 'panel-table' },
+            { id: 'bubble-9', text: 'Get undressed. Put your gardening clothes on.', panelId: 'panel-garden' },
+            { id: 'bubble-10', text: "Sorry, I'm getting dressed now!", panelId: 'panel-garden' },
+            { id: 'bubble-11', text: 'Can we collect leaves?', panelId: 'panel-garden' },
+            { id: 'bubble-12', text: 'We can put them in the trash can.', panelId: 'panel-garden' }
+        ];
+
+        let currentSpeechRate = 0.75;
+        let isPlayingFullLesson = false;
+        let currentFullIndex = 0;
+        let activeTimeouts = [];
+        let availableVoices = [];
+        let lockedNativeVoice = null;
+        let currentAudioPlayer = null;
+
+        // قائمة أسماء شهيرة لمتحدثي اللغة الإنجليزية للعرض السريع
+        const presetEnglishSpeakers = [
+            { name: 'Samantha', accent: 'US Native', lang: 'en-US' },
+            { name: 'Linda', accent: 'CA Native', lang: 'en-CA' },
+            { name: 'Oliver', accent: 'UK Native', lang: 'en-GB' },
+            { name: 'Jenny', accent: 'US Natural', lang: 'en-US' },
+            { name: 'Clara', accent: 'CA Female', lang: 'en-CA' }
+        ];
+
+        const lessonPagePosterSvg = `data:image/svg+xml;utf8,` + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 960" width="700" height="960" style="background:#f4fbf4; font-family:'Fredoka',sans-serif;">
+            <rect width="700" height="960" fill="#f8fafc"/>
+            <rect x="0" y="0" width="700" height="190" fill="#e0f2fe"/>
+            <circle cx="85" cy="85" r="45" fill="#0d9488" stroke="#ffffff" stroke-width="4"/>
+            <text x="85" y="100" font-size="48" font-weight="900" fill="#ffffff" text-anchor="middle">2</text>
+            <text x="145" y="92" font-size="52" font-weight="900" fill="#fb7185">UNIT 2: CHORES</text>
+            <rect x="230" y="115" width="370" height="38" rx="6" fill="#0f766e" transform="rotate(-1 230 115)"/>
+            <text x="415" y="140" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle">A Visit to Their Grandparents!</text>
+            <rect x="75" y="165" width="220" height="30" rx="15" fill="#fef3c7"/>
+            <text x="185" y="185" font-size="15" font-weight="700" fill="#92400e" text-anchor="middle">1. 🎧 Listen and number.</text>
+            <rect x="330" y="165" width="230" height="30" rx="15" fill="#fef3c7"/>
+            <text x="445" y="185" font-size="15" font-weight="700" fill="#92400e" text-anchor="middle">2. 🎧 Listen, point, and say.</text>
+            <rect x="25" y="210" width="315" height="280" rx="18" fill="#fef9c3" stroke="#475569" stroke-width="3"/>
+            <rect x="35" y="220" width="95" height="22" rx="11" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+            <text x="82" y="235" font-size="11" font-weight="700" fill="#1e293b" text-anchor="middle">On the bus ...</text>
+            <rect x="35" y="250" width="125" height="42" rx="10" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="42" y="268" font-size="10" font-weight="700" fill="#0f172a">This superhero</text>
+            <text x="42" y="282" font-size="10" font-weight="800" fill="#0d9488">comic book is fun!</text>
+            <rect x="175" y="250" width="150" height="42" rx="10" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="182" y="268" font-size="10" font-weight="700" fill="#0f172a">Grandpa and grandma</text>
+            <text x="182" y="282" font-size="10" font-weight="700" fill="#0f172a">are my superheroes!</text>
+            <rect x="35" y="305" width="230" height="110" rx="16" fill="#f97316" stroke="#c2410c" stroke-width="3"/>
+            <rect x="45" y="315" width="210" height="50" rx="6" fill="#bae6fd"/>
+            <circle cx="85" cy="415" r="20" fill="#1e293b"/>
+            <circle cx="215" cy="415" r="20" fill="#1e293b"/>
+            <circle cx="120" cy="340" r="16" fill="#fed7aa"/>
+            <circle cx="170" cy="340" r="16" fill="#fed7aa"/>
+            <rect x="360" y="210" width="315" height="280" rx="18" fill="#ffedd5" stroke="#475569" stroke-width="3"/>
+            <rect x="370" y="220" width="140" height="22" rx="11" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+            <text x="440" y="235" font-size="11" font-weight="700" fill="#1e293b" text-anchor="middle">The next morning ...</text>
+            <rect x="520" y="250" width="140" height="42" rx="10" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="526" y="268" font-size="10" font-weight="700" fill="#0f172a">Hurry up! You need to</text>
+            <text x="526" y="282" font-size="10" font-weight="800" fill="#0d9488">catch the bus at nine!</text>
+            <rect x="370" y="325" width="120" height="28" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="376" y="343" font-size="10" font-weight="700" fill="#0f172a">I'm <tspan fill="#0d9488" font-weight="800">waking up</tspan>, Mom!</text>
+            <rect x="545" y="420" width="115" height="28" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="552" y="438" font-size="10" font-weight="700" fill="#0f172a">What? <tspan fill="#0d9488" font-weight="800">Get up</tspan> now!</text>
+            <rect x="25" y="505" width="315" height="270" rx="18" fill="#ecfeff" stroke="#475569" stroke-width="3"/>
+            <rect x="155" y="525" width="165" height="60" rx="10" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="162" y="545" font-size="10" font-weight="800" fill="#0d9488">Get on <tspan fill="#0f172a" font-weight="700">the 54 bus to go</tspan></text>
+            <text x="162" y="560" font-size="10" font-weight="700" fill="#0f172a">to your <tspan fill="#0d9488" font-weight="800">grandparents'</tspan></text>
+            <text x="162" y="575" font-size="10" font-weight="700" fill="#0f172a">tomorrow.</text>
+            <rect x="180" y="700" width="125" height="26" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="186" y="717" font-size="10" font-weight="700" fill="#0f172a">Where do we <tspan fill="#0d9488" font-weight="800">get off</tspan>?</text>
+            <rect x="65" y="735" width="150" height="26" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="72" y="752" font-size="10" font-weight="700" fill="#0f172a">At the park. It's a short <tspan fill="#0d9488" font-weight="800">ride</tspan>.</text>
+            <rect x="360" y="505" width="315" height="270" rx="18" fill="#fefce8" stroke="#475569" stroke-width="3"/>
+            <rect x="370" y="575" width="130" height="35" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="375" y="590" font-size="9.5" font-weight="800" fill="#0d9488">Get undressed. <tspan fill="#0f172a" font-weight="700">Put your</tspan></text>
+            <text x="375" y="603" font-size="9.5" font-weight="700" fill="#0f172a">gardening clothes on.</text>
+            <rect x="520" y="575" width="115" height="35" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="525" y="590" font-size="9.5" font-weight="700" fill="#0f172a">Sorry, I'm <tspan fill="#0d9488" font-weight="800">getting</tspan></text>
+            <text x="525" y="603" font-size="9.5" font-weight="800" fill="#0d9488">dressed <tspan fill="#0f172a" font-weight="700">now!</tspan></text>
+            <rect x="375" y="625" width="60" height="42" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="380" y="640" font-size="9" font-weight="700" fill="#0f172a">Can we</text>
+            <text x="380" y="652" font-size="9" font-weight="700" fill="#0f172a">collect</text>
+            <text x="380" y="664" font-size="9" font-weight="700" fill="#0f172a">leaves?</text>
+            <rect x="525" y="740" width="115" height="28" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+            <text x="530" y="753" font-size="9" font-weight="700" fill="#0f172a">We can put them</text>
+            <text x="530" y="765" font-size="9" font-weight="700" fill="#0f172a">in the <tspan fill="#0d9488" font-weight="800">trash can</tspan>.</text>
+            <rect x="25" y="795" width="650" height="135" rx="24" fill="#ec4899" stroke="#db2777" stroke-width="3"/>
+            <text x="55" y="845" font-size="30" font-weight="900" fill="#ffffff">How do you</text>
+            <text x="55" y="885" font-size="32" font-weight="900" fill="#ffffff">help at home?</text>
+            <circle cx="360" cy="850" r="32" fill="#ffffff"/>
+            <text x="360" y="860" font-size="28" text-anchor="middle">🧹</text>
+            <text x="360" y="905" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle">sweep</text>
+            <circle cx="445" cy="850" r="32" fill="#ffffff"/>
+            <text x="445" y="860" font-size="28" text-anchor="middle">🛏️</text>
+            <text x="445" y="905" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle">make the bed</text>
+            <circle cx="530" cy="850" r="32" fill="#ffffff"/>
+            <text x="530" y="860" font-size="28" text-anchor="middle">🍽️</text>
+            <text x="530" y="905" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle">wash dishes</text>
+            <circle cx="615" cy="850" r="32" fill="#ffffff"/>
+            <text x="615" y="860" font-size="28" text-anchor="middle">🧸</text>
+            <text x="615" y="905" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle">pick up toys</text>
+        </svg>
+        `);
+
+        // تهيئة واكتشاف أصوات متحدثي الإنجليزية
+        function populateVoiceList() {
+            if (!('speechSynthesis' in window)) return;
+            const voices = window.speechSynthesis.getVoices();
+            if (!voices || voices.length === 0) return;
+
+            // فلترة المتحدثين باللغة الإنجليزية
+            availableVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+
+            // اختيار أفضل متحدث كافتراضي
+            if (!lockedNativeVoice && availableVoices.length > 0) {
+                const preferred = availableVoices.find(v => 
+                    v.name.toLowerCase().includes('samantha') || 
+                    v.name.toLowerCase().includes('linda') || 
+                    v.name.toLowerCase().includes('jenny') || 
+                    v.name.toLowerCase().includes('natural') || 
+                    v.name.toLowerCase().includes('clara')
+                );
+                lockedNativeVoice = preferred || availableVoices[0];
+            }
+
+            // بناء القائمة المنسدلة لأسماء المتحدثين
+            const listEl = document.getElementById('voiceOptionsList');
+            if (listEl) {
+                listEl.innerHTML = '';
+                const displayList = availableVoices.length > 0 ? availableVoices : presetEnglishSpeakers;
+
+                displayList.forEach((v, idx) => {
+                    const cleanName = v.name ? v.name.replace(/Google|Microsoft|Apple|Desktop|English|United States|Canada/gi, '').trim() : v.name;
+                    const region = (v.lang && v.lang.includes('GB')) ? 'UK' : (v.lang && v.lang.includes('CA')) ? 'CA' : 'US';
+                    
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-indigo-50 flex items-center justify-between transition';
+                    btn.onclick = () => {
+                        selectSpeaker(v);
+                        toggleVoiceDropdown();
+                    };
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px]">
+                                <i class="fa-solid fa-microphone-lines"></i>
+                            </span>
+                            <span class="text-slate-800 font-extrabold truncate">${cleanName || 'English Speaker ' + (idx + 1)}</span>
+                        </div>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">${region}</span>
+                    `;
+                    listEl.appendChild(btn);
+                });
+            }
+
+            if (lockedNativeVoice) {
+                updateSpeakerDisplay(lockedNativeVoice.name);
+            }
+        }
+
+        function selectSpeaker(voiceObj) {
+            lockedNativeVoice = voiceObj;
+            updateSpeakerDisplay(voiceObj.name);
+            // إعادة التحدث بترحيب بسيط لتأكيد الصوت الجديد
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function updateSpeakerDisplay(speakerName) {
+            const cleanName = speakerName ? speakerName.replace(/Google|Microsoft|Apple|Desktop|English|United States|Canada/gi, '').trim() : 'Samantha';
+            const badge = document.getElementById('speakerBadgeName');
+            const navBadge = document.getElementById('navSpeakerName');
+            const footerBadge = document.getElementById('footerSpeakerName');
+
+            if (badge) badge.innerText = `Speaker: ${cleanName}`;
+            if (navBadge) navBadge.innerText = cleanName;
+            if (footerBadge) footerBadge.innerText = `Native Voice: ${cleanName}`;
+        }
+
+        function toggleVoiceDropdown() {
+            const menu = document.getElementById('voiceDropdownMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // إغلاق القائمة عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('voiceDropdownMenu');
+            const btn = document.getElementById('voiceSelectorBtn');
+            const badge = document.getElementById('speakerBadgeName');
+            if (menu && !menu.classList.contains('hidden')) {
+                if (!menu.contains(e.target) && !btn.contains(e.target) && !e.target.closest('button[onclick="toggleVoiceDropdown()"]')) {
+                    menu.classList.add('hidden');
+                }
+            }
+        });
+
+        window.onload = function() {
+            const thumbImg = document.getElementById('headerThumbImg');
+            if (thumbImg) thumbImg.src = lessonPagePosterSvg;
+
+            populateVoiceList();
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    populateVoiceList();
+                };
+            }
+        };
+
+        function speakSentenceWithLockedVoice(text, onFinished) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                if (lockedNativeVoice) {
+                    utterance.voice = lockedNativeVoice;
+                    utterance.lang = lockedNativeVoice.lang || 'en-US';
+                } else {
+                    utterance.lang = 'en-US';
+                }
+                utterance.rate = currentSpeechRate;
+                utterance.pitch = 1.05;
+
+                let finished = false;
+                utterance.onend = () => {
+                    if (finished) return;
+                    finished = true;
+                    if (onFinished) onFinished();
+                };
+                utterance.onerror = () => {
+                    if (finished) return;
+                    finished = true;
+                    if (onFinished) onFinished();
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                try {
+                    if (currentAudioPlayer) {
+                        currentAudioPlayer.pause();
+                        currentAudioPlayer = null;
+                    }
+                    const cleanText = encodeURIComponent(text);
+                    const cloudAudioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${cleanText}&tl=en&client=tw-ob`;
+                    const audio = new Audio(cloudAudioUrl);
+                    currentAudioPlayer = audio;
+                    audio.playbackRate = currentSpeechRate;
+                    audio.onended = () => {
+                        if (onFinished) onFinished();
+                    };
+                    audio.onerror = () => {
+                        if (onFinished) onFinished();
+                    };
+                    audio.play().catch(() => {
+                        if (onFinished) onFinished();
+                    });
+                } catch(e) {
+                    if (onFinished) onFinished();
+                }
+            }
+        }
+
+        function resetAllHighlights() {
+            activeTimeouts.forEach(t => clearTimeout(t));
+            activeTimeouts = [];
+
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            if (currentAudioPlayer) {
+                currentAudioPlayer.pause();
+                currentAudioPlayer = null;
+            }
+
+            document.querySelectorAll('.speech-bubble').forEach(b => b.classList.remove('active-speech'));
+            document.querySelectorAll('.chore-badge').forEach(c => c.classList.remove('speaking'));
+            hideToast();
+        }
+
+        function readBubbleTwice(bubbleId, onFinished = null) {
+            resetAllHighlights();
+
+            const bubbleEl = document.getElementById(bubbleId);
+            if (!bubbleEl) {
+                if (onFinished) onFinished();
+                return;
+            }
+
+            const textToSpeak = bubbleEl.getAttribute('data-text');
+            bubbleEl.classList.add('active-speech');
+            showToast(`${textToSpeak} (1/2)`);
+
+            speakSentenceWithLockedVoice(textToSpeak, () => {
+                const pauseTimer = setTimeout(() => {
+                    showToast(`${textToSpeak} (2/2)`);
+                    speakSentenceWithLockedVoice(textToSpeak, () => {
+                        const finishTimer = setTimeout(() => {
+                            bubbleEl.classList.remove('active-speech');
+                            hideToast();
+                            if (onFinished) onFinished();
+                        }, 400);
+                        activeTimeouts.push(finishTimer);
+                    });
+                }, 400);
+                activeTimeouts.push(pauseTimer);
+            });
+        }
+
+        function readBubble(bubbleId) {
+            stopAutoPlay();
+            readBubbleTwice(bubbleId);
+        }
+
+        function startAutoDirectPlay() {
+            resetAllHighlights();
+            isPlayingFullLesson = true;
+            currentFullIndex = 0;
+            updatePlayBtnUI();
+            playNextDialogueSequence();
+        }
+
+        function togglePlayFullLesson() {
+            if (isPlayingFullLesson) {
+                stopAutoPlay();
+            } else {
+                startAutoDirectPlay();
+            }
+        }
+
+        function stopAutoPlay() {
+            isPlayingFullLesson = false;
+            resetAllHighlights();
+            updatePlayBtnUI();
+        }
+
+        function updatePlayBtnUI() {
+            const btn = document.getElementById('playAllBtn');
+            const icon = document.getElementById('playAllIcon');
+            const text = document.getElementById('playAllText');
+            if (!btn) return;
+
+            if (isPlayingFullLesson) {
+                icon.className = 'fa-solid fa-stop';
+                text.innerText = 'Pause Reading';
+                btn.classList.replace('from-emerald-500', 'from-rose-500');
+                btn.classList.replace('to-teal-600', 'to-red-600');
+            } else {
+                icon.className = 'fa-solid fa-play';
+                text.innerText = 'Auto Read (Repeat 2x)';
+                btn.classList.replace('from-rose-500', 'from-emerald-500');
+                btn.classList.replace('to-red-600', 'to-teal-600');
+            }
+        }
+
+        function playNextDialogueSequence() {
+            if (!isPlayingFullLesson || currentFullIndex >= allDialogues.length) {
+                if (currentFullIndex >= allDialogues.length) {
+                    playChoresSequence();
+                } else {
+                    stopAutoPlay();
+                }
+                return;
+            }
+
+            const current = allDialogues[currentFullIndex];
+            const panel = document.getElementById(current.panelId);
+            if (panel) {
+                panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            readBubbleTwice(current.id, () => {
+                if (isPlayingFullLesson) {
+                    currentFullIndex++;
+                    const nextTimer = setTimeout(playNextDialogueSequence, 500);
+                    activeTimeouts.push(nextTimer);
+                }
+            });
+        }
+
+        const choresList = [
+            { id: 'chore-sweep', text: 'sweep' },
+            { id: 'chore-bed', text: 'make the bed' },
+            { id: 'chore-dishes', text: 'wash dishes' },
+            { id: 'chore-toys', text: 'pick up toys' }
+        ];
+        let choreIndex = 0;
+
+        function playChoresSequence() {
+            choreIndex = 0;
+            playNextChore();
+        }
+
+        function playNextChore() {
+            if (!isPlayingFullLesson || choreIndex >= choresList.length) {
+                stopAutoPlay();
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
+                }
+                return;
+            }
+
+            const chore = choresList[choreIndex];
+            const badge = document.getElementById(chore.id);
+            if (badge) badge.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            speakChoreTwice(chore.text, chore.id, () => {
+                if (isPlayingFullLesson) {
+                    choreIndex++;
+                    const choreTimer = setTimeout(playNextChore, 500);
+                    activeTimeouts.push(choreTimer);
+                }
+            });
+        }
+
+        function speakChoreTwice(choreText, elementId, onDone = null) {
+            resetAllHighlights();
+
+            const badge = document.getElementById(elementId);
+            if (badge) badge.classList.add('speaking');
+            showToast(`${choreText} (1/2)`);
+
+            speakSentenceWithLockedVoice(choreText, () => {
+                const t = setTimeout(() => {
+                    showToast(`${choreText} (2/2)`);
+                    speakSentenceWithLockedVoice(choreText, () => {
+                        const endT = setTimeout(() => {
+                            if (badge) badge.classList.remove('speaking');
+                            hideToast();
+                            if (onDone) onDone();
+                        }, 350);
+                        activeTimeouts.push(endT);
+                    });
+                }, 400);
+                activeTimeouts.push(t);
+            });
+        }
+
+        function speakChore(choreText, elementId) {
+            stopAutoPlay();
+            speakChoreTwice(choreText, elementId);
+        }
+
+        function toggleSpeechRate() {
+            const display = document.getElementById('speedDisplay');
+            if (currentSpeechRate === 0.75) {
+                currentSpeechRate = 0.58;
+                if (display) display.innerText = 'Slow (0.6x)';
+            } else if (currentSpeechRate === 0.58) {
+                currentSpeechRate = 0.92;
+                if (display) display.innerText = 'Normal (0.9x)';
+            } else {
+                currentSpeechRate = 0.75;
+                if (display) display.innerText = 'Calm (0.75x)';
+            }
+        }
+
+        function stampNumber(boxId) {
+            const box = document.getElementById(boxId);
+            if (!box) return;
+            box.classList.toggle('stamped');
+            if (typeof confetti === 'function' && box.classList.contains('stamped')) {
+                confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+            }
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('liveReadingToast');
+            const toastText = document.getElementById('toastWord');
+            if (toastText) toastText.innerText = text;
+            if (toast) {
+                toast.classList.remove('opacity-0', 'translate-y-8');
+                toast.classList.add('opacity-100', 'translate-y-0');
+            }
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('liveReadingToast');
+            if (toast) {
+                toast.classList.add('opacity-0', 'translate-y-8');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }
+        }
+    </script>
+</body>
+</html>
